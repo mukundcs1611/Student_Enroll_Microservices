@@ -17,30 +17,33 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
+import org.springframework.integration.annotation.MessageEndpoint;
+import org.springframework.integration.annotation.Payloads;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.SubscribableChannel;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import javax.persistence.*;
+import java.util.*;
 
 /**
  * @author mukund chavali
  * Watch Spring boot  getting started tutorial by Josh Long : https://www.youtube.com/watch?v=sbPSjI4tt10
  */
-interface ReservationChannels {
+
+interface CartChannels {
     @Input
-    MessageChannel input();
+    SubscribableChannel input();
 }
-@EnableBinding(ReservationChannels.class)
+
+
+@EnableBinding(CartChannels.class)
 @EnableDiscoveryClient //for Eureka
 @SpringBootApplication
 public class CartServiceApplication {
@@ -57,12 +60,48 @@ public class CartServiceApplication {
 		return (args)->{
 			Arrays.asList("123","35","456").forEach(n-> cr.save(new Cart(n)));
 			cr.findAll().forEach(s->{System.out.println(s);
-                                    s.setNoOfItems((int)Math.rint(Math.random()));
+
+			                      //  s.setItems(new ArrayList<String>());
                     });
 
 			cr.findCartByUserId("123").forEach(System.out::println);//Method references in Lambda
 		}; //Implements CommandLineRunner(Functional Interface)
 	}
+}
+
+@MessageEndpoint
+class CartProcessor{
+	@Autowired
+	CartProcessor(CartRepository cartRepository) {
+		this.cartRepository = cartRepository;
+	}
+
+	@ServiceActivator(inputChannel="input")
+	public void onNewCart(Map<String,String> param){
+		Long id=null;
+		for(Cart c2:this.cartRepository.findAll()){
+		    if(c2.getUserId()==param.get("userId")){//Cart Exist
+		       id=c2.getCartid();
+               List<String> items=c2.getItems();
+               items.add(param.get("courseId"));
+
+                this.cartRepository.save(c2);
+            }
+
+        }
+        if(id==null){//Cart Not Exist
+            Cart c=new Cart(param.get("userId"));
+            List<String> newList=new ArrayList<String>();
+            newList.add(param.get("courseId"));
+            c.setItems(newList);
+            this.cartRepository.save(c) ;
+		}
+
+
+	}
+	private final CartRepository cartRepository;
+
+
 }
 
 
@@ -75,10 +114,7 @@ class MessageServiceController{
     String message(){
         return this.msg;
     }
-//    @RequestMapping("/cart")
-//    Collection<Cart> allcarts(){
-//        return this.cr.findAll();
-//    }
+
     @Autowired
     CartRepository cr;
 }
@@ -87,27 +123,28 @@ class MessageServiceController{
 interface CartRepository extends JpaRepository<Cart,Long>{
 	@RestResource(path="by-id")
 	Collection<Cart> findCartByUserId(@Param("userId") String userId);
-}
-@Component
-class CartResourceProcessor implements ResourceProcessor<Resource<Cart>> {
-	// this method is for adding hateoas links
-    @Override
-    public Resource<Cart> process(Resource<Cart> resource) {
-        resource.add(new Link("http://something.com/" + resource.getContent().getUserId()));
-        return resource;
-    }
-}
-@Controller
-class CartMVCController{
-    @RequestMapping("/cart.php")
-    String cart(Model model){
-        model.addAttribute("carts",this.cartRepository.findAll());
-        return "carts";//src/main/resources/templatees/+$X+.html
-    }
 
-    @Autowired
-    private CartRepository cartRepository;
 }
+//@Component
+//class CartResourceProcessor implements ResourceProcessor<Resource<Cart>> {
+//	// this method is for adding hateoas links
+//    @Override
+//    public Resource<Cart> process(Resource<Cart> resource) {
+//        resource.add(new Link("http://something.com/" + resource.getContent().getUserId()));
+//        return resource;
+//    }
+//}
+//@Controller
+//class CartMVCController{
+//    @RequestMapping("/cart.php")
+//    String cart(Model model){
+//        model.addAttribute("carts",this.cartRepository.findAll());
+//        return "carts";//src/main/resources/templatees/+$X+.html
+//    }
+//
+//    @Autowired
+//    private CartRepository cartRepository;
+//}
 @Entity
 class Cart{
 	@Id
@@ -117,13 +154,15 @@ class Cart{
 	@Column(nullable=false)
 	private String userId;
 
-	private int noOfItems;
+    @ElementCollection
+	private List<String> items;
 
 	Cart() {
 	}
 	Cart(String userId){
 		this.userId=userId;
 	}
+
 	public Long getCartid(){
 		return cartId;
 	}
@@ -132,18 +171,15 @@ class Cart{
 		return userId;
 	}
 
-//    public List<String> getItems() {
-//        return items;
-//    }
 
-
-    public int getNoOfItems() {
-        return noOfItems;
+	public List<String> getItems() {
+        return items;
     }
 
-    public void setNoOfItems(int noOfItems) {
-        this.noOfItems = noOfItems;
+    public void setItems(List<String> items){
+	    this.items=items;
     }
+
 
     @Override
 	public String toString() {
