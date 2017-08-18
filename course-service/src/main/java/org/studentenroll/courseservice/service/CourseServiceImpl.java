@@ -48,17 +48,17 @@ public class CourseServiceImpl implements CourseService {
         String query="SELECT course FROM Course course WHERE course.subject='"+params.get("subject")+"'";
         if(params.containsKey("courseNum")){
             String option=params.get("coption");
-            query+=" AND course.courseNo "+option+" "+params.get("courseNum")+" ";
+            query+=" AND course.course_no "+option+" "+params.get("courseNum")+" ";
         }
 
         if(params.get("courseLevel")==null){
 
             if(Objects.equals(params.get("courseLevel"), "G")){
-                query+=" AND  course.courseNo >= 5000";
+                query+=" AND  course.course_no >= 5000";
             }
 
             else if(params.get("courseLevel")!=null)
-                query+="AND  course.courseNo <=5000";
+                query+="AND  course.course_no <=5000";
 
         }
 

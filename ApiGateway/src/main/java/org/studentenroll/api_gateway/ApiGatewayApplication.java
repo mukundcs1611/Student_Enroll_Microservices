@@ -12,6 +12,9 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.studentenroll.api_gateway.messaging.MessageChannels;
 
 /**
@@ -38,6 +41,24 @@ public class ApiGatewayApplication {
 	RestTemplate getrestTemplate(){
 		return new RestTemplate();
 	}
+
+//	@Bean
+//	public CorsFilter corsFilter() {
+//		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//		final CorsConfiguration config = new CorsConfiguration();
+//		config.setAllowCredentials(true);
+//		config.addAllowedOrigin("*");
+//		config.addAllowedHeader("*");
+//		config.addAllowedMethod("OPTIONS");
+//		config.addAllowedMethod("HEAD");
+//		config.addAllowedMethod("GET");
+//		config.addAllowedMethod("PUT");
+//		config.addAllowedMethod("POST");
+//		config.addAllowedMethod("DELETE");
+//		config.addAllowedMethod("PATCH");
+//		source.registerCorsConfiguration("/**", config);
+//		return new CorsFilter(source);
+//	}
 }
 
 

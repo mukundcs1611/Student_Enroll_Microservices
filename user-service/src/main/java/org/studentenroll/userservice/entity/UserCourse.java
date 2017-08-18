@@ -34,6 +34,8 @@ public class UserCourse {
 
     private String instructor;
 
+    private String section;
+
     public UserCourse(String courseId)
     {
         this.id=UUID.randomUUID().toString();
@@ -119,6 +121,14 @@ public class UserCourse {
 
     public void setInstructor(String instructor) {
         this.instructor = instructor;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
     }
 
     @Override

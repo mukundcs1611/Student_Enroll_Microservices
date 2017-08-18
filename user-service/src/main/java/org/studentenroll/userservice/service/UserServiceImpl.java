@@ -105,6 +105,7 @@ public class UserServiceImpl implements UserService {
                 uc.setStart_time(course.getStart_time());
                 uc.setCourseNo(course.getCourseNo());
                 uc.setSemesterId(course.getSemesterId());
+                uc.setSection(course.getSection());
                 this.userCourseRepository.update(uc);
             }
         }

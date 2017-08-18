@@ -1,6 +1,8 @@
 package org.studentenroll.userservice.entity;
 
 
+import org.hibernate.annotations.ColumnDefault;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +29,8 @@ public class User {
     private String firstName;
     private String lastName;
 
-    @Column(nullable =false )
+    @Column(nullable =false)
+    @ColumnDefault("false")
     private Boolean faculty;
 
     @Column(unique=true)
