@@ -1,25 +1,28 @@
 package org.studentenroll.userservice.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.UUID;
 
 /**
  * @author chavali
  **/
 @Entity
+@NamedQueries(@NamedQuery(name="UserCourse.findByCourseId",
+        query="SELECT c from UserCourse c WHERE c.course_id=:courseId"))
 public class UserCourse {
-    @GeneratedValue
+
     @Id
     String id;
 
     @Column(nullable=false)
-    private String courseId;
+    private String course_id;//Course ID
 
-    private String courseName;
+    private String course_no;
+
+    private String course_title;
 
     private String days;
+
 
     private String start_time;
 
@@ -31,9 +34,12 @@ public class UserCourse {
 
     private String instructor;
 
-    public UserCourse(String courseId) {
-        this.courseId = courseId;
+    public UserCourse(String courseId)
+    {
+        this.id=UUID.randomUUID().toString();
+        this.course_id = courseId;
     }
+    public UserCourse(){}
 
     public String getId() {
         return id;
@@ -44,19 +50,27 @@ public class UserCourse {
     }
 
     public String getCourseId() {
-        return courseId;
+        return course_id;
     }
 
-    public void setCourseId(String courseId) {
-        this.courseId = courseId;
+    public void setCourseId(String course_id) {
+        this.course_id = course_id;
     }
 
-    public String getCourseName() {
-        return courseName;
+    public String getCourseNo() {
+        return course_no;
     }
 
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
+    public void setCourseNo(String course_no) {
+        this.course_no = course_no;
+    }
+
+    public String getCourse_title() {
+        return course_title;
+    }
+
+    public void setCourse_title(String course_title) {
+        this.course_title = course_title;
     }
 
     public String getDays() {
@@ -83,11 +97,11 @@ public class UserCourse {
         this.end_time = end_time;
     }
 
-    public String getSemester_id() {
+    public String getSemesterId() {
         return semester_id;
     }
 
-    public void setSemester_id(String semester_id) {
+    public void setSemesterId(String semester_id) {
         this.semester_id = semester_id;
     }
 
@@ -110,9 +124,9 @@ public class UserCourse {
     @Override
     public String toString() {
         return "UserCourse{" +
-                "id='" + id + '\'' +
-                ", courseId='" + courseId + '\'' +
-                ", courseName='" + courseName + '\'' +
+                "id(uuid)='" + id + '\'' +
+                ", courseId='" + course_id + '\'' +
+                ", courseName='" + course_title + '\'' +
                 ", days='" + days + '\'' +
                 ", start_time='" + start_time + '\'' +
                 ", end_time='" + end_time + '\'' +
@@ -121,4 +135,7 @@ public class UserCourse {
                 ", instructor='" + instructor + '\'' +
                 '}';
     }
+
+
+
 }

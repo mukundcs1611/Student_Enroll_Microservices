@@ -7,20 +7,26 @@ import org.studentenroll.userservice.entity.User;
 import org.studentenroll.userservice.entity.UserCourse;
 import org.studentenroll.userservice.exception.BadRequestException;
 import org.studentenroll.userservice.exception.NotFoundException;
+import org.studentenroll.userservice.messaging.HttpMessaging;
+import org.studentenroll.userservice.repository.UserCourseRepository;
 import org.studentenroll.userservice.repository.UserRepository;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
-
+    private final UserCourseRepository userCourseRepository;
+    private final HttpMessaging httpMessaging;
     @Autowired
-    public UserServiceImpl(UserRepository repository) {
-        this.repository = repository;
+    public UserServiceImpl(UserRepository repository, UserCourseRepository userCourseRepository, HttpMessaging httpMessaging) {
+        this.repository = repository; this.userCourseRepository=userCourseRepository;
+        this.httpMessaging = httpMessaging;
     }
 
     @Override
@@ -68,10 +74,44 @@ public class UserServiceImpl implements UserService {
         }
         return repository.update(user);
     }
-
+//TODO : OPTIMIZE
     @Override
-    public Set<UserCourse> getCoursesByUserId(String userId) {
-        return null;
+    public List<UserCourse> getCoursesByUserId(String uuid) {
+        User user=findOne(uuid);
+        List<UserCourse> courses=user.getUserCourses();
+        List<UserCourse> coursesToUpdate=null;
+        List<String> fetchCourses=new ArrayList<String>();
+        for(UserCourse course:courses){
+            if(course.getCourse_title()==null){
+                //prepare a packet and send a request
+                fetchCourses.add(course.getCourseId());
+
+            }
+
+        }
+        if(fetchCourses.size()>0){
+            coursesToUpdate=this.httpMessaging.getCourses("http://course-service/internal/getCoursesByCourseId",fetchCourses);
+            for(UserCourse course:coursesToUpdate){
+                UserCourse uc=this.userCourseRepository.findByCourseId(course.getCourseId());
+                uc.setCourse_title(course.getCourse_title());
+                uc.setDays(course.getDays());
+                uc.setEnd_time(course.getEnd_time());
+                uc.setInstructor(course.getInstructor());
+                if(course.getLocation()==null){
+                    uc.setLocation("");
+                }
+                else
+                    uc.setLocation(course.getLocation());
+                uc.setStart_time(course.getStart_time());
+                uc.setCourseNo(course.getCourseNo());
+                uc.setSemesterId(course.getSemesterId());
+                this.userCourseRepository.update(uc);
+            }
+        }
+
+
+        return courses;
+
     }
 
     @Override
@@ -83,7 +123,7 @@ public class UserServiceImpl implements UserService {
         else
             user=repository.findByUserId(param);
 
-        if(user.getPassword().equals(password)) //TODO Encrypt Password in front and back
+        if(user.getPassword().equals(password)) //TODO Encrypt Password
             return user;
         else
             return null;

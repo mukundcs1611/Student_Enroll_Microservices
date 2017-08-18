@@ -13,7 +13,7 @@ public interface UserService {
      User create(User user);
      void delete(String id);
      User update(String id, User user);
-     Set<UserCourse> getCoursesByUserId(String userId);
+     List<UserCourse> getCoursesByUserId(String userId);
      User authenticate(String param, String password);
 
 }

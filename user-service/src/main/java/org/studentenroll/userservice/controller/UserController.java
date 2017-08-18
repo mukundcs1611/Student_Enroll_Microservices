@@ -2,9 +2,13 @@ package org.studentenroll.userservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.studentenroll.userservice.entity.User;
 import org.studentenroll.userservice.entity.UserCourse;
+import org.studentenroll.userservice.exception.BadRequestException;
+import org.studentenroll.userservice.exception.NotFoundException;
+import org.studentenroll.userservice.repository.UserCourseRepository;
 import org.studentenroll.userservice.service.UserService;
 
 
@@ -12,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 
 @RestController
@@ -65,9 +68,9 @@ public class UserController {
     }
 
     @GetMapping(value="/viewmycourses/{userId}")
-    Set<UserCourse> getCoursesByUserId(@PathVariable String userId){
+    List<UserCourse> getCoursesByUserId(@PathVariable String userId){
 
-        return null;
+        return userService.getCoursesByUserId(userId);
     }
 
 }
@@ -76,29 +79,47 @@ public class UserController {
 @RequestMapping(value="internal")
 class UserInternalController{
     final UserService userService;
-
+    final UserCourseRepository userCourseRepository;
     @Autowired
-    UserInternalController(UserService userService) {
+    UserInternalController(UserService userService, UserCourseRepository userCourseRepository) {
         this.userService = userService;
+        this.userCourseRepository = userCourseRepository;
     }
 
     @PutMapping(value="addCourse")
+    @Transactional
     @ResponseBody boolean addCourses(@RequestBody Map<String,List<String>> param){
+
         String userId=param.get("userId").get(0);
         List<String> courses=param.get("cartItems");
-        User user=this.userService.findOne(userId);
-        if(user==null){
-         return false;
-        }
-        List<UserCourse> currentcourses=user.getUserCourses();
-        List<UserCourse> newcourses=new ArrayList<UserCourse>();
-        for(String course:courses){
-            UserCourse u=new UserCourse(course);
-            newcourses.add(u);
-        }
-        currentcourses.addAll(newcourses);
+        List<UserCourse> currentcourses;
+        List<UserCourse> newcourses;
+        try{
+            User user=this.userService.findOne(userId);
 
-        return false;
+            if(user==null){
+                throw new NotFoundException("User with id "+userId+" is currently not registered" );
+            }
+            currentcourses=user.getUserCourses();
+            newcourses=new ArrayList<UserCourse>();
+            for(String course:courses){
+                if(userCourseRepository.findOne(course)!=null){
+                    throw new BadRequestException("User already enrolled to course "+course);
+                }
+                UserCourse u=new UserCourse(course);
+                newcourses.add(u);
+                userCourseRepository.create(u);
+            }
+            currentcourses.addAll(newcourses);
+            this.userService.update(userId,user);
+
+
+        }
+        catch(BadRequestException|NotFoundException ex){
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
 

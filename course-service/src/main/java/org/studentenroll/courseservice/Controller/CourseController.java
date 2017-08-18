@@ -1,12 +1,7 @@
 package org.studentenroll.courseservice.Controller;
 
-import com.netflix.discovery.converters.Auto;
-import org.jboss.logging.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.integration.annotation.MessageEndpoint;
-import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.studentenroll.courseservice.Exception.BadRequestException;
@@ -81,10 +76,12 @@ public class CourseController {
 class CourseInternalController {
     final
     CourseService courseService;
+    final CourseRepository courseRepository;
 
     @Autowired
-    public CourseInternalController(CourseService courseService) {
+    public CourseInternalController(CourseService courseService, CourseRepository courseRepository) {
         this.courseService = courseService;
+        this.courseRepository = courseRepository;
     }
 
     @RequestMapping(value = "enrollCart")
@@ -105,6 +102,19 @@ class CourseInternalController {
             return false;
         }
         return true;
+    }
+
+    @RequestMapping(value="getCoursesByCourseId")
+    public @ResponseBody List<Course> getCoursesByCourseID(@RequestBody List<String> courseIds){
+        List<Course> courses=new ArrayList<Course>();
+        courseIds.forEach(
+                n->{
+                    Course c=courseRepository.findOne(n);
+                    courses.add(c);
+                }
+        );
+
+        return courses;
     }
 }
 

@@ -44,7 +44,7 @@ public class UserRepositoryImpl implements UserRepository {
         //System.out.println(em.find(Address.class,user.getAddress().getId()));
         //em.merge(em.find(Address.class,user.getAddress().getId()));
 
-        //em.merge(user.getAddress());
+
         return em.merge(user);
     }
 

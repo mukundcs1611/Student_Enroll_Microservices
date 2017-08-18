@@ -37,12 +37,14 @@ public class HttpMessaging  {
 
 
     @Async
-    public boolean post(String url, Map<String,List<String>> param){
+    public boolean sendHttpMessage(String url,HttpMethod httpMethod, Map<String,List<String>> param){
         HttpHeaders header=new HttpHeaders();
 
         HttpEntity h=new HttpEntity(param);
-
-        return restTemplate.exchange(url, HttpMethod.POST, h, Boolean.class).getBody();
+        if(httpMethod==HttpMethod.GET){
+            return restTemplate.exchange(url,httpMethod,null,Boolean.class).getBody();
+        }
+        return restTemplate.exchange(url, httpMethod, h, Boolean.class).getBody();
     }
 //
 //    /**

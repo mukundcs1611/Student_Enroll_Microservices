@@ -3,7 +3,6 @@ package org.studentenroll.userservice.entity;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -29,8 +28,7 @@ public class User {
     private String lastName;
 
     @Column(nullable =false )
-    private Boolean isFaculty;
-
+    private Boolean faculty;
 
     @Column(unique=true)
     private String email;
@@ -40,6 +38,7 @@ public class User {
     @OneToMany
     private List<UserCourse> userCourses;
     //@OneToOne
+
 
     public void setUserCourses(List<UserCourse> userCourse) {
         this.userCourses = userCourses;
@@ -87,15 +86,6 @@ public class User {
         this.lastName = lastName;
     }
 
-
-    public Boolean getIsFaculty() {
-        return isFaculty;
-    }
-
-    public void setIsFaculty(Boolean faculty) {
-        isFaculty = faculty;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -112,8 +102,14 @@ public class User {
         this.password = password;
     }
 
+    public Boolean getFaculty() {
+        return faculty;
+    }
 
-    //  public Address getAddress() {
+    public void setFaculty(Boolean faculty) {
+        this.faculty = faculty;
+    }
+//  public Address getAddress() {
   //      return address;
   //  }
 
@@ -128,7 +124,7 @@ public class User {
                 ", userId='" + userId + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", isFaculty=" + isFaculty +
+                ", isFaculty=" + faculty +
                 ", email='" + email + '\'' +
     //            ", streetAddress='" + address + '\''+
                 '}';

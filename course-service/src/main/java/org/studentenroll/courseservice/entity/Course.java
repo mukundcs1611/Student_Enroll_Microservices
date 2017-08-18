@@ -6,18 +6,20 @@ import java.util.UUID;
 
 @Entity
 @NamedEntityGraph(name = "Courses.noEnrollment")
+@NamedQueries(@NamedQuery(name="Course.findByCourseNo",
+        query="SELECT c from Course c WHERE c.course_no=:courseNo"))
 public class Course {
     @Id
-    @Column(columnDefinition = "varchar(36)")
-    private String id;
+    @Column(columnDefinition = "varchar(36)",name="id")
+    private String course_id;
 
     @Column(nullable=false)
     private String subject;
 
-    @Column(nullable =false)
-    private int semesterId;
+
+    private int semester_id;
     @Column(nullable=false)
-    private int courseNo;
+    private int course_no;
     @Column(nullable=false)
     private int section;
     @Column(nullable=false)
@@ -41,31 +43,31 @@ public class Course {
 
 
     public Course(){
-        this.id= UUID.randomUUID().toString();
+        this.course_id= UUID.randomUUID().toString();
     }
 
-    public String getId() {
-        return id;
+    public String getCourseId() {
+        return course_id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setCourseId(String course_id) {
+        this.course_id = course_id;
     }
 
     public int getSemesterId() {
-        return semesterId;
+        return semester_id;
     }
 
-    public void setSemesterId(int semesterId) {
-        this.semesterId = semesterId;
+    public void setSemesterId(int semester_id) {
+        this.semester_id = semester_id;
     }
 
     public int getCourseNo() {
-        return courseNo;
+        return course_no;
     }
 
-    public void setCourseNo(int courseNo) {
-        this.courseNo = courseNo;
+    public void setCourseNo(int course_no) {
+        this.course_no = course_no;
 
     }
 

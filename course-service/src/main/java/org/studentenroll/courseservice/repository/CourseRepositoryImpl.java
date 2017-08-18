@@ -59,4 +59,16 @@ public class CourseRepositoryImpl implements CourseRepository{
 
         return null;
     }
+
+    @Override
+    public Course findByCourseNo(String Id) {
+        TypedQuery<Course> namedQuery=em.createNamedQuery("Course.findByCourseNo",Course.class);
+        namedQuery.setParameter("Id",Id);
+
+        List<Course> list=namedQuery.getResultList();
+        if(list!=null && list.size()==1) return list.get(0);
+
+        else return null;
+
+    }
 }

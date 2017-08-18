@@ -3,10 +3,12 @@ package org.studentenroll.cartservice.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpMethod;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.studentenroll.cartservice.entity.Cart;
+import org.studentenroll.cartservice.exception.BadRequestException;
 import org.studentenroll.cartservice.messaging.HttpMessaging;
 import org.studentenroll.cartservice.repository.CartRepository;
 import org.studentenroll.cartservice.service.CartProcessor;
@@ -19,7 +21,7 @@ import java.util.*;
 @RefreshScope
 @RestController
 @ComponentScan("org.studentenroll.cartservice")
-class CartInternalController{
+public class CartController{
 
     final CartRepository cr;
 
@@ -32,7 +34,7 @@ class CartInternalController{
     CartProcessor cartProcessor;
 
     @Autowired
-     public CartInternalController(CartRepository cr,RestTemplate restTemplate) {
+     public CartController(CartRepository cr,RestTemplate restTemplate) {
         this.cr = cr;
         this.restTemplate = restTemplate;
 
@@ -51,8 +53,17 @@ class CartInternalController{
 
         //On Payment Success
         //send  output to course service queue
-        return httpMessaging.post("http://course-service/internal/enrollCart",m);
+        if(httpMessaging.sendHttpMessage("http://course-service/internal/enrollCart", HttpMethod.POST,m) && httpMessaging.sendHttpMessage("http://user-service/internal/addCourse",HttpMethod.PUT ,m)){
+            try{
+                this.cr.delete(c);
+            }
+            catch(Exception ex){
+                ex.printStackTrace();
+            }
+            return true;
+        }
 
+        return false;
     }
 
     Cart getCartByUserId(Map<String,String> param){
@@ -64,8 +75,8 @@ class CartInternalController{
         return c;
     }
     @PostMapping(value="/addItem")
-    public void addToCart(@RequestBody Map<String,String> param){
-        this.cartProcessor.addToCart(param);
+    public boolean addToCart(@RequestBody Map<String,String> param){
+        return this.cartProcessor.addToCart(param);
 
     }
 

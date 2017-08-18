@@ -13,4 +13,5 @@ public interface CourseRepository {
      Course updateCourse(Course course);
      void deleteCourse(String id);
      Enrollment enroll(Course course);
+     Course findByCourseNo(String courseNo);
 }

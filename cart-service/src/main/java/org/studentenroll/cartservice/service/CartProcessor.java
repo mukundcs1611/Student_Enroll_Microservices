@@ -21,25 +21,31 @@ public class CartProcessor{
     }
 
     @ServiceActivator(inputChannel="input")
-    public void addToCart(Map<String,String> param){
+    public boolean addToCart(Map<String,String> param){
 
-        String userId=param.get("userId");
-        String courseId=param.get("courseId");
-        Cart c=this.cartRepository.findCartByUserId(userId);
+        try{
+            String userId=param.get("userId");
+            String courseId=param.get("courseId");
+            Cart c=this.cartRepository.findCartByUserId(userId);
 
-        if(c==null){
-            c=new Cart(userId);
-            List<String> list=new ArrayList<String>();
-            list.add(courseId);
-            c.setItems(list);
+            if(c==null){
+                c=new Cart(userId);
+                List<String> list=new ArrayList<String>();
+                list.add(courseId);
+                c.setItems(list);
+            }
+            else{
+                List<String> list=c.getItems();
+                list.add(courseId);
+
+            }
+            this.cartRepository.save(c);
         }
-        else{
-            List<String> list=c.getItems();
-            list.add(courseId);
-
+        catch(Exception ex){//Add more specific exceptions
+            ex.printStackTrace();
+            return false;
         }
-        this.cartRepository.save(c);
-
+        return true;
     }
 
     private final CartRepository cartRepository;

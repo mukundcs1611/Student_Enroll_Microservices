@@ -34,7 +34,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional
     public Course create(Course course) {
-        if(findOne(course.getId())==null){
+        if(findOne(course.getCourseId())==null){
             throw new BadRequestException("User already exists ");
         }
         return repository.create(course);
@@ -74,7 +74,7 @@ public class CourseServiceImpl implements CourseService {
             c2.setDays(c.getDays());
             c2.setEnd_time(c.getEnd_time());
             c2.setStart_time(c.getEnd_time());
-            c2.setId(c.getId());
+            c2.setCourseId(c.getCourseId());
             c2.setInstructor(c.getInstructor());
             c2.setSection(c.getSection());
             c2.setMax(c.getMax());
