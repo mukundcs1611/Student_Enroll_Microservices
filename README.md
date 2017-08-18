@@ -9,11 +9,12 @@ Java Spring Backend
 4. To get started with this project , clone and import as a maven project
 5. User-service and course-service uses mysql database.Set up your own credentials connection in bootstrap.properties located in main->resources.
 6. Dump file for data is attached (student_enroll.sql) .
-
+7. Now it is getting bigger daily and there are about 3 people including me who are actively making changes.
 
 # Future:
  I have deployed two modules of this project seperately in AWS ECR, using docker. I had to take those down as Amazon started charging me. Now, recently I have moved on to Spring cloud and still haven't figured how and which of deployment 
   1. I have only run it locally , has to integrate with any continuous integration( Mostly Travis) deploy automatically on success on any of the cloud foundry repo.
+  
   
 
 ## What are Used:
