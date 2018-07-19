@@ -13,7 +13,7 @@ Java Spring Backend
 
 # Future:
  I have deployed two modules of this project seperately in AWS ECR, using docker. I had to take those down as Amazon started charging me. Now, recently I have moved on to Spring cloud and still haven't figured how and which of deployment 
-  1. I have only run it locally , has to integrate with any continuous integration( Mostly Travis) deploy automatically on success on any of the cloud foundry repo.
+  1. I have only run it locally , have to integrate with any continuous integration( Mostly Travis) deploy automatically.
   
   
 
